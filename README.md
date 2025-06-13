@@ -66,7 +66,9 @@ cd [クローンしたリポジトリ名」
         "version": 3.3
     }
 }
+```
 【重要】 この `config.json` ファイルは、必ず `.gitignore` に追加して、Gitで追跡されないようにしてください。
+
 **③ Pythonライブラリのインストール**
 ```bash
 pip install tinytuya
