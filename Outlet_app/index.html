@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スマートコンセントモニター</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #3498db;
+            padding: 20px 0;
+            margin: 0;
+            background-color: #ecf0f1;
+        }
+
+        .tabs-container {
+            display: flex;
+            align-items: center;
+            background-color: #3498db;
+            padding: 10px;
+        }
+
+        #outlet-tabs {
+            flex-grow: 1;
+        }
+
+        .tab-button {
+            padding: 10px 10px;
+            border: none;
+            background-color: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 5px;
+            margin: 5px;
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-button:hover, .tab-button.active {
+            background-color: #2980b9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .power-usage {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .usage-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .usage-tab {
+            padding: 8px 15px;
+            border: none;
+            background-color: #e0e6ed;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 20px;
+            margin: 0 5px;
+        }
+
+        .usage-tab.active, .usage-tab:hover {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .usage-display-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .usage-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .current-usage {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .comparison-info {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+            margin-top: 20px;
+        }
+
+        .goal-setting {
+            margin-top: 20px;
+        }
+
+        #monthly-goals {
+            margin-bottom: 10px;
+        }
+
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        progress {
+            width: 100%;
+            height: 20px;
+        }
+
+        #add-outlet-btn, #add-device-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #add-outlet-btn:hover, #add-device-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .modal-content input, .modal-content button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+    <link rel="stylesheet" href="st.css">
+</head>
+<body>
+    <div class="container" id="main-container">
+        <h1>スマートコンセントモニター</h1>
+        <div class="tabs-container">
+            <div class="tabs" id="outlet-tabs">
+                <!-- タブはJavaScriptで動的に生成されます -->
+            </div>
+            <button id="add-outlet-btn" onclick="addOutlet()">+</button>
+        </div>
+        <div class="content">
+            <div id="tab1" class="tab-content">
+                <h2 id="outlet-name" contenteditable="true">リビングルーム</h2>
+                <div class="outlet-info">
+                    <div id="devices-container">
+                        <!-- デバイスがここに追加されます -->
+                    </div>
+                    <button id="add-device-btn" onclick="addDevice()">デバイスを追加</button>
+                </div>
+                <div class="power-usage">
+                    <h3>電力使用量</h3>
+                    <div class="usage-tabs">
+                        <button class="usage-tab active" onclick="showUsage('day')">1日</button>
+                        <button class="usage-tab" onclick="showUsage('week')">1週間</button>
+                        <button class="usage-tab" onclick="showUsage('month')">1か月</button>
+                    </div>
+                    <div class="usage-display-container">
+                        <button class="arrow-btn" onclick="showPreviousPeriod()">←</button>
+                        <div id="usage-display" class="usage-display">
+                            <div class="current-usage">
+                                <span id="usage-amount">0</span> 円
+                            </div>
+                            <div class="comparison-info">
+                                <div id="usage-comparison"></div>
+                                <div id="previous-month-date"></div>
+                            </div>
+                        </div>
+                        <button class="arrow-btn" onclick="showNextPeriod()">→</button>
+                    </div>
+                    <canvas id="usageChart"></canvas>
+                    
+                    <div class="goal-setting">
+                        <h3>月間目標設定</h3>
+                        <div id="monthly-goals"></div>
+                        <button onclick="addMonthlyGoal()">目標追加</button>
+                    </div>
+                    
+                    <div id="goal-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="deviceEditModal" class="modal">
+        <div class="modal-content">
+            <h2>デバイス編集</h2>
+            <input type="text" id="editDeviceName" placeholder="デバイス名">
+            <input type="number" id="editDevicePower" placeholder="消費電力 (W)">
+            <button onclick="saveDeviceEdit()">保存</button>
+            <button onclick="deleteDevice()">削除</button>
+            <button onclick="closeModal()">キャンセル</button>
+        </div>
+    </div>
+    <div id="warningModal" class="modal">
+        <div class="modal-content warning">
+            <h2>警告</h2>
+            <p>電力使用量が危険レベルに達しています！</p>
+            <button onclick="turnOffOutlet()">コンセントの電源を切る</button>
+            <button onclick="closeWarningModal()">閉じる</button>
+        </div>
+    </div>
+    <script src="in.js"></script>
+</body>
+</html>

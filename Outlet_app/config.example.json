@@ -1,0 +1,14 @@
+{
+    "tinytuya_device": {
+        "dev_id": "YOUR_DEVICE_ID",
+        "address": "Auto",
+        "local_key": "YOUR_LOCAL_KEY",
+        "version": 3.3
+    },
+    "tinytuya_api": {
+        "apiKey": "YOUR_API_KEY",
+        "apiSecret": "YOUR_API_SECRET",
+        "apiRegion": "us",
+        "apiDeviceID": "YOUR_API_DEVICE_ID"
+    }
+}
